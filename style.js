@@ -1,79 +1,81 @@
-// Importa o StyleSheet do React Native para criar objetos de estilo otimizados.
+// style.js
+
+// Importa o StyleSheet do React Native, que otimiza a criação de estilos.
 import { StyleSheet } from 'react-native';
 
-// Cria e exporta o objeto de estilos que será usado no App.js.
+// Cria e exporta o objeto de estilos para ser usado em outros arquivos.
 export const styles = StyleSheet.create({
-  // --- Estilos da Tela Principal ---
+  // --- Estilos da Tela Principal e Estrutura ---
   container: {
-    flex: 1, // Faz o container principal ocupar toda a tela disponível.
-    backgroundColor: '#f0f2f5', // Uma cor de fundo suave.
+    flex: 1, // Faz o container ocupar toda a tela.
+    backgroundColor: '#f0f2f5', // Cor de fundo suave.
   },
   header: {
-    flexDirection: 'row', // Alinha os itens (título e botão) horizontalmente.
-    justifyContent: 'space-between', // Coloca um item no início e outro no fim.
-    alignItems: 'center', // Alinha os itens verticalmente ao centro.
+    flexDirection: 'row', // Alinha os itens (título e botão) na horizontal.
+    justifyContent: 'space-between', // Espaça os itens, um em cada ponta.
+    alignItems: 'center', // Centraliza os itens verticalmente.
     padding: 20, // Espaçamento interno.
-    borderBottomWidth: 1, // Linha de separação na parte inferior.
-    borderBottomColor: '#ddd', // Cor da linha de separação.
-    backgroundColor: 'white', // Cor de fundo do cabeçalho.
+    borderBottomWidth: 1, // Linha de separação inferior.
+    borderBottomColor: '#ddd', // Cor da linha.
+    backgroundColor: 'white', // Fundo branco para o cabeçalho.
   },
   title: {
-    fontSize: 22, // Tamanho da fonte do título.
-    fontWeight: 'bold', // Deixa o texto em negrito.
+    fontSize: 22,
+    fontWeight: 'bold',
   },
   listContainer: {
-    padding: 20, // Adiciona espaçamento ao redor da lista para não colar nas bordas.
+    padding: 20, // Espaçamento para o conteúdo da lista.
   },
 
   // --- Estilos do Card de Usuário na Lista ---
   userCard: {
-    backgroundColor: 'white', // Cor de fundo do card.
-    padding: 15, // Espaçamento interno.
+    backgroundColor: 'white',
+    padding: 15,
     borderRadius: 8, // Bordas arredondadas.
-    marginBottom: 15, // Espaçamento entre os cards.
-    elevation: 3, // Adiciona uma sombra para Android.
-    shadowColor: '#000', // Adiciona uma sombra para iOS (cor).
-    shadowOffset: { width: 0, height: 1 }, // Posição da sombra.
-    shadowOpacity: 0.2, // Opacidade da sombra.
-    shadowRadius: 1.41, // Raio da sombra.
+    marginBottom: 15, // Espaço entre um card e outro.
+    elevation: 3, // Sombra para Android.
+    shadowColor: '#000', // Sombra para iOS.
+    shadowOffset: { width: 0, height: 1 },
+    shadowOpacity: 0.2,
+    shadowRadius: 1.41,
   },
   userName: {
     fontSize: 18,
     fontWeight: 'bold',
-    color: '#333', // Cor escura para o nome.
+    color: '#333',
   },
   userEmail: {
     fontSize: 14,
-    color: '#666', // Cor cinza para o email.
-    marginTop: 2, // Pequeno espaçamento acima.
+    color: '#666',
+    marginTop: 2,
   },
-   userPhone: {
+  userPhone: {
     fontSize: 14,
-    color: '#666', // Cor cinza para o telefone.
+    color: '#666',
     marginTop: 2,
   },
   cardButtons: {
-    flexDirection: 'row', // Alinha os ícones de editar/excluir horizontalmente.
-    alignItems: 'center', // Alinha os ícones verticalmente.
-    position: 'absolute', // Permite posicionar livremente dentro do pai (userCard).
-    right: 15, // Posiciona 15 pixels da direita.
-    top: 15, // Posiciona 15 pixels do topo.
+    flexDirection: 'row',
+    alignItems: 'center',
+    position: 'absolute', // Permite posicionar os ícones sobre o card.
+    right: 15, // 15 pixels da borda direita.
+    top: 15, // 15 pixels do topo.
   },
   
-  // --- Estilos dos Modais ---
+  // --- Estilos para os Modais (Pop-ups) ---
   modalBackdrop: {
-    flex: 1, // Ocupa a tela toda.
-    backgroundColor: 'rgba(0, 0, 0, 0.5)', // Fundo preto semi-transparente.
-    justifyContent: 'center', // Centraliza o conteúdo verticalmente.
-    alignItems: 'center', // Centraliza o conteúdo horizontalmente.
+    flex: 1,
+    backgroundColor: 'rgba(0, 0, 0, 0.5)', // Fundo escuro semi-transparente.
+    justifyContent: 'center', // Centraliza o modal na vertical.
+    alignItems: 'center', // Centraliza o modal na horizontal.
   },
   modalView: {
-    width: '90%', // O modal terá 90% da largura da tela.
+    width: '90%', // Largura do modal.
     backgroundColor: 'white',
     borderRadius: 10,
     padding: 20,
-    paddingTop: 40, // Mais espaço no topo para o botão 'X'.
-    elevation: 10, // Sombra para o modal.
+    paddingTop: 50, // Mais espaço no topo para o botão 'X'.
+    elevation: 10,
   },
   modalTitle: {
     fontSize: 20,
@@ -82,35 +84,35 @@ export const styles = StyleSheet.create({
     textAlign: 'center',
   },
   label: {
-      alignSelf: 'flex-start', // Alinha o texto da label à esquerda.
-      marginLeft: 5,
-      marginBottom: 5,
-      fontSize: 14,
-      color: '#333',
+    alignSelf: 'flex-start', // Alinha a label à esquerda.
+    marginLeft: 5,
+    marginBottom: 5,
+    fontSize: 14,
+    color: '#333',
   },
   input: {
-    width: '100%', // Ocupa toda a largura do modal.
+    width: '100%',
     height: 45,
     borderColor: '#ccc',
     borderWidth: 1,
     borderRadius: 8,
-    paddingHorizontal: 15, // Espaçamento interno horizontal.
-    marginBottom: 15, // Espaçamento abaixo do input.
+    paddingHorizontal: 15,
+    marginBottom: 15,
   },
   modalButtonRow: {
     flexDirection: 'row',
-    justifyContent: 'center', // Centraliza os botões de ação.
+    justifyContent: 'space-around', // Espaça os botões dentro do modal.
     width: '100%',
     marginTop: 20,
   },
   errorText: {
-    color: 'red', // Cor do texto de erro.
+    color: 'red', // Cor para mensagens de erro.
     textAlign: 'center',
     marginBottom: 10,
   },
   modalCloseButton: {
-    position: 'absolute', // Posição absoluta em relação ao pai (modalView).
-    top: 15, // 15 pixels do topo.
-    right: 15, // 15 pixels da direita.
+    position: 'absolute', // Posicionamento absoluto em relação ao modalView.
+    top: 15,
+    right: 15,
   },
 });

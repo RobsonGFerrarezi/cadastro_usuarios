@@ -14,8 +14,7 @@
     "expo-sqlite": "~16.0.8",
     "expo-status-bar": "~3.0.8",
     "react": "19.1.0",
-    "react-native": "0.81.4",
-    "undefined": "expo-sqlite/next"
+    "react-native": "0.81.4"
   },
   "private": true
 }

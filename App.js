@@ -6,40 +6,35 @@ import {
   Modal, Alert, SafeAreaView, Button
 } from 'react-native';
 
-// Importações dos nossos módulos customizados
 import * as Database from './db/database';
 import UserCard from './components/UserCard';
 import { styles } from './style';
-
-// Importação de ícones
 import { Feather } from '@expo/vector-icons';
 
-// Componente principal que renderiza a aplicação.
 export default function App() {
   // --- DEFINIÇÃO DOS ESTADOS ---
-  const [db, setDb] = useState(null); // Armazena a conexão com o banco de dados.
-  const [users, setUsers] = useState([]); // Lista de usuários para a FlatList.
+  const [db, setDb] = useState(null);
+  const [users, setUsers] = useState([]);
   
-  // Estados para o Modal Principal (Criar/Editar Usuário)
   const [isUserModalVisible, setIsUserModalVisible] = useState(false);
   const [nome, setNome] = useState('');
   const [email, setEmail] = useState('');
   const [telefone, setTelefone] = useState('');
   const [password, setPassword] = useState('');
-  const [confirmPassword, setConfirmPassword] = useState(''); // Para a confirmação na criação
+  const [confirmPassword, setConfirmPassword] = useState('');
 
-  // Estados para o Modal de Alteração de Senha
   const [isPasswordModalVisible, setIsPasswordModalVisible] = useState(false);
   const [oldPassword, setOldPassword] = useState('');
   const [newPassword, setNewPassword] = useState('');
   const [confirmNewPassword, setConfirmNewPassword] = useState('');
 
-  // Estados de Controle (modo edição, usuário atual, erros)
   const [isEditing, setIsEditing] = useState(false);
   const [currentUser, setCurrentUser] = useState(null);
   const [passwordError, setPasswordError] = useState('');
 
+
   // --- FUNÇÕES AUXILIARES DE VALIDAÇÃO E FORMATAÇÃO ---
+  
   const isValidEmail = (emailToValidate) => /\S+@\S+\.\S+/.test(emailToValidate);
 
   const formatPhoneNumber = (text) => {
@@ -52,24 +47,32 @@ export default function App() {
     return cleaned;
   };
 
+  // Função centralizada para validar a complexidade da senha.
+  const isPasswordValid = (pass) => {
+    // Testa cada regra e retorna true apenas se todas passarem.
+    const hasMinLength = pass.length >= 5;
+    const hasUpperCase = /[A-Z]/.test(pass);
+    const hasNumber = /\d/.test(pass);
+    return hasMinLength && hasUpperCase && hasNumber;
+  };
+
+
   // --- LÓGICA DE INICIALIZAÇÃO E BANCO DE DADOS ---
   useEffect(() => {
-    // Função auto-executável para podermos usar async/await dentro do useEffect.
     const setup = async () => {
       try {
-        const database = await Database.initDb(); // Inicializa o banco.
-        setDb(database); // Armazena a conexão no estado.
-        await fetchUsers(database); // Busca os dados iniciais.
+        const database = await Database.initDb();
+        setDb(database);
+        await fetchUsers(database);
       } catch (error) {
         console.log('Erro ao inicializar o banco:', error);
       }
     };
     setup();
-  }, []); // O array vazio `[]` garante que isso rode apenas uma vez.
+  }, []);
 
-  // Busca os usuários do banco e atualiza o estado da lista.
   const fetchUsers = async (database = db) => {
-    if (!database) return; // Proteção para caso o banco não esteja pronto.
+    if (!database) return;
     try {
       const data = await Database.fetchAllUsers(database);
       setUsers(data);
@@ -78,9 +81,10 @@ export default function App() {
     }
   };
 
+
   // --- FUNÇÕES DE MANIPULAÇÃO DE DADOS (HANDLERS) ---
   
-  // Salva um usuário (novo ou editado).
+  // A lógica de salvar agora inclui a nova validação de senha.
   const handleSaveUser = async () => {
     if (!db) return;
     if (!nome || !email || !isValidEmail(email)) {
@@ -91,21 +95,31 @@ export default function App() {
       if (isEditing) {
         await Database.updateUser(db, currentUser.id, nome, email, telefone);
       } else {
-        if (!password || password !== confirmPassword) {
-          return Alert.alert('Senha Inválida', 'As senhas não coincidem ou estão em branco.');
+        // Bloco de validação de senha para novos usuários
+        if (password !== confirmPassword) {
+            // Define o erro no estado para ser exibido no modal
+            setPasswordError('As senhas não coincidem.');
+            return;
         }
+        if (!isPasswordValid(password)) {
+            // Define o erro com todas as regras para o usuário ver
+            setPasswordError('A senha deve ter no mínimo 5 caracteres, uma letra maiúscula e um número.');
+            return;
+        }
+        // Se a validação passar, limpa qualquer erro antigo
+        setPasswordError('');
         await Database.addUser(db, nome, email, telefone, password);
       }
       resetForms();
-      await fetchUsers(); // Atualiza a lista na tela.
+      await fetchUsers();
     } catch (error) {
       Alert.alert('Erro ao Salvar', 'Não foi possível salvar. O email já pode estar em uso.');
     }
   };
 
-  // Deleta um usuário após confirmação.
+  // ... função handleDelete sem alterações ...
   const handleDelete = (id) => {
-    Alert.alert('Confirmar Exclusão', 'Tem certeza que deseja excluir este usuário?', [
+    Alert.alert('Confirmar Exclusão', 'Tem certeza?', [
       { text: 'Cancelar' },
       { text: 'Excluir', style: 'destructive',
         onPress: async () => {
@@ -117,20 +131,29 @@ export default function App() {
     ]);
   };
 
-  // Lida com a atualização da senha no modal específico.
+  //  A lógica de atualizar senha agora inclui a nova validação.
   const handleUpdatePassword = async () => {
       if (!db) return;
       const userFromDb = await Database.fetchUserById(db, currentUser.id);
 
-      if (userFromDb.password !== oldPassword) return setPasswordError('A senha antiga está incorreta.');
-      if (!newPassword || newPassword !== confirmNewPassword) return setPasswordError('As novas senhas não coincidem ou estão em branco.');
+      if (userFromDb.password !== oldPassword) {
+        return setPasswordError('A senha antiga está incorreta.');
+      }
+      if (newPassword !== confirmNewPassword) {
+        return setPasswordError('As novas senhas não coincidem.');
+      }
+      if (!isPasswordValid(newPassword)) {
+        return setPasswordError('A nova senha deve ter no mínimo 5 caracteres, uma letra maiúscula e um número.');
+      }
 
+      // Se tudo estiver certo, limpa o erro e atualiza
+      setPasswordError('');
       await Database.updateUserPassword(db, currentUser.id, newPassword);
       Alert.alert('Sucesso', 'Senha alterada!');
       resetForms();
   };
 
-  // --- Funções de controle da UI (abrir/fechar modais, etc) ---
+  // --- Funções de controle da UI (sem alterações) ---
   const handleEdit = (user) => {
     setIsEditing(true); setCurrentUser(user);
     setNome(user.nome); setEmail(user.email); setTelefone(user.telefone);
@@ -143,9 +166,11 @@ export default function App() {
     setIsUserModalVisible(true);
   };
   
-  const handleOpenPasswordModal = () => setIsPasswordModalVisible(true);
+  const handleOpenPasswordModal = () => {
+      setPasswordError(''); // Limpa erros antigos antes de abrir
+      setIsPasswordModalVisible(true);
+  };
 
-  // Reseta TODOS os formulários e estados relacionados para o padrão.
   const resetForms = () => {
     setNome(''); setEmail(''); setTelefone(''); setPassword(''); setConfirmPassword('');
     setOldPassword(''); setNewPassword(''); setConfirmNewPassword(''); setPasswordError('');
@@ -156,6 +181,7 @@ export default function App() {
   // --- RENDERIZAÇÃO DA INTERFACE (JSX) ---
   return (
     <SafeAreaView style={styles.container}>
+      {/* ...Header e FlatList sem alterações... */}
       <View style={styles.header}>
         <Text style={styles.title}>Usuários (SQLite)</Text>
         <Button title="Adicionar" onPress={handleAddNew} />
@@ -190,6 +216,9 @@ export default function App() {
                 <TextInput style={styles.input} value={password} onChangeText={setPassword} secureTextEntry />
                 <Text style={styles.label}>Confirmar Senha</Text>
                 <TextInput style={styles.input} value={confirmPassword} onChangeText={setConfirmPassword} secureTextEntry />
+
+                {/* Exibe o erro de senha diretamente no formulário */}
+                {passwordError ? <Text style={styles.errorText}>{passwordError}</Text> : null}
               </>
             ) : (
               <View style={{marginTop: 10, width: '100%'}}>
@@ -206,12 +235,15 @@ export default function App() {
       <Modal visible={isPasswordModalVisible} animationType="fade" transparent={true} onRequestClose={resetForms}>
         <View style={styles.modalBackdrop}>
             <View style={styles.modalView}>
-                <TouchableOpacity style={styles.modalCloseButton} onPress={() => setIsPasswordModalVisible(false)}><Feather name="x" size={24} color="#333" /></TouchableOpacity>
+                <TouchableOpacity style={styles.modalCloseButton} onPress={() => {setIsPasswordModalVisible(false); setPasswordError('');}}>
+                    <Feather name="x" size={24} color="#333" />
+                </TouchableOpacity>
                 <Text style={styles.modalTitle}>Alterar Senha</Text>
                 <TextInput style={styles.input} value={oldPassword} onChangeText={setOldPassword} placeholder="Senha Antiga" secureTextEntry />
                 <TextInput style={styles.input} value={newPassword} onChangeText={setNewPassword} placeholder="Nova Senha" secureTextEntry />
                 <TextInput style={styles.input} value={confirmNewPassword} onChangeText={setConfirmNewPassword} placeholder="Confirmar Nova Senha" secureTextEntry />
 
+                {/* Exibe o erro de senha diretamente no formulário */}
                 {passwordError ? <Text style={styles.errorText}>{passwordError}</Text> : null}
                 
                 <View style={styles.modalButtonRow}>
